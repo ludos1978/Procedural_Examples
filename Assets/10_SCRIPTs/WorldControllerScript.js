@@ -19,12 +19,12 @@ function Start () {
 	// minimaler abstand zwischen den objekten
 	var cubeMinSpacing : float = 1;
 	// range für die platzierung der objekte (-placingRange .. +placingRange)
-	var placingRange : float = 250;
+	var placingRange : float = 400;
 	// zähler für anzahl platzierter objekte
 	var cubeCount : int = 0;
 	
 	// 1000 mal
-	for (var i=0; i<1000; i++) {
+	for (var i=0; i<300; i++) {
 		// bestimme ein zentrum für das objekt, zufällig in x und y position (-placingRange .. +placingRange)
 		raySource = Vector3(Random.Range(-placingRange, placingRange), 100, Random.Range(-placingRange, placingRange));
 		// ist das resultat innerhalb des platzer wo fahrzeuge positioniert werden

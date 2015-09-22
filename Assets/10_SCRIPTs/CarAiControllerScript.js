@@ -1,4 +1,5 @@
 /* ki steuerung mit 2 rays zum ausweichen von objekten */
+import UnityStandardAssets.Vehicles.Car;
 
 enum STATE {
   CHASE,
@@ -7,7 +8,8 @@ enum STATE {
 }
 private var currentState : STATE = STATE.ROAM;
 
-private var carSteeringScript : CarSteeringScript;
+//private var carSteeringScript : CarSteeringScript;
+private var carController : CarController;
 private var carBody : GameObject;
 
 var avgMoveSpeed : float = 50;
@@ -16,24 +18,25 @@ function Start () {
 	print ("I: CarAiControllerScript");
 
 	// gib mir eine referenz auf des fahrzeugsteuerungsscript
-	carSteeringScript = GetComponentInChildren(CarSteeringScript);
-	// setze eine zuf�llig position
-	transform.position = Vector3(Random.Range(-50, 50),Random.Range(0, 10),Random.Range(-50, 50));
+	//carSteeringScript = GetComponentInChildren(CarSteeringScript);
+	carController = transform.GetComponentInChildren(CarController);
+	// setze eine zufaellig position
+	//transform.position = Vector3(Random.Range(-50, 50),transform.position.y + Random.Range(0, 10),Random.Range(-50, 50));
 	// eine refernez auf das fahrzeug (wo der rigidbody angemacht ist)
-	carBody = transform.Find("carBody").gameObject;
+	carBody = transform.gameObject; //.Find("carBody").gameObject;
 }
 
-function Update () {
+function FixedUpdate () {
   var flee = false;
-  if (Input.GetKey ("f")) {
+  if (Input.GetKey ("i")) {
     flee = true;
   }
   var chase = false;
-  if (Input.GetKey ("c")) {
+  if (Input.GetKey ("o")) {
     chase = true;
   }
   var roam = false;
-  if (Input.GetKey ("r")) {
+  if (Input.GetKey ("p")) {
     roam = true;
   }
 
@@ -59,7 +62,7 @@ function Update () {
 
     case STATE.EVADE:
       Evade();
-      // in welchen zustand m�chte ich wechseln
+      // in welchen zustand maechte ich wechseln
       if (chase) {
         currentState = STATE.CHASE;
       }
@@ -74,29 +77,34 @@ function Chase () {
 }
 
 function Roam () {
+	var acceleration : float 	= 0;
+	var rotation : float 		= 0;
+	var handbrake : float 		= 0;
+	
+	
 	// startposition des raycasts
 	var raySource : Vector3;
 	// richtung des raycasts
 	var rayDirection : Vector3;
-	// l�nge des raycasts
+	// laenge des raycasts
 	var rayLength : float = 20.0;
 	
 	// entfernung zum objekt auf das der linke strahl trifft
 	// als standart wird ein wert verwendet der bei einer kollision niemals auftreten kann
-	// (da der raycast mittels der variable rayLength auf die maximale l�nge
-	//   beschr�nkt wird, kann kein gr�sserer wert auftreten)
+	// (da der raycast mittels der variable rayLength auf die maximale laenge
+	//   beschraenkt wird, kann kein graesserer wert auftreten)
 	var distanceToLeftCollision : float = rayLength + 1;
 	// die berechnete kollision von strahl wird hier gespeichert
 	var leftHit : RaycastHit;
 	// startpunkt des strahls
 	// position des fahrzeugs + (umwandlungsmatrix von lokalkoordinaten in weltkooridnaten * vector aus der fahrzeugsicht)
-	raySource = carBody.transform.position+(carBody.transform.TransformDirection(Vector3(-.7,-1.1,.6)));
+	raySource = carBody.transform.position+(carBody.transform.TransformDirection(Vector3(-.7,.6,0.8)));
 	// richtung des strahls
 	// umwandlungsmatrix von lokalkoordinaten in weltkooridnaten * normalisierter richtungsvektor in fahrzeugkoodinaten
-	rayDirection = carBody.transform.TransformDirection(Vector3(-1,-3,0).normalized);
+	rayDirection = carBody.transform.TransformDirection(Vector3(-1,0,3).normalized);
 	// zeichne eine linie die den raycast representiert
 	Debug.DrawLine (raySource, raySource+rayDirection*rayLength);
-	// �berpr�fe auf kollisionen
+	// aeberpraefe auf kollisionen
 	if (Physics.Raycast (raySource, rayDirection, leftHit, rayLength)) {
 		
 		if (leftHit.collider.gameObject.name == "Terrain") {
@@ -109,11 +117,11 @@ function Roam () {
 		}
 	}
 	
-	// alles wie oben, nur f�r einen zweiten strahl der nach rechts geht
+	// alles wie oben, nur faer einen zweiten strahl der nach rechts geht
 	var distanceToRightCollision : float = rayLength + 1;
 	var rightHit : RaycastHit;
-	raySource = carBody.transform.position+carBody.transform.localToWorldMatrix * Vector3(.7,-1.1,.6);
-	rayDirection = carBody.transform.localToWorldMatrix * (Vector3(1,-3,0).normalized);
+	raySource = carBody.transform.position+carBody.transform.localToWorldMatrix * Vector3(.7,.6,0.8);
+	rayDirection = carBody.transform.localToWorldMatrix * (Vector3(1,0,3).normalized);
 	Debug.DrawLine (raySource, raySource+rayDirection*rayLength);
 	if (Physics.Raycast (raySource, rayDirection, rightHit, rayLength)) {
 		if (rightHit.collider.gameObject.name == "Terrain") {
@@ -124,12 +132,12 @@ function Roam () {
 		}
 	}
 	
-	// setze die r�der auf geradeaus
-	carSteeringScript.SetDirection(0);
+	// setze die raeder auf geradeaus
+	rotation = 0;
 	// setze eine standartbeschleunigung
-	carSteeringScript.SetAcceleration(28);
+	acceleration = 30;
 	
-	// die standart einschlagst�rke der r�der
+	// die standart einschlagstaerke der raeder
 	var turnAngle = 10;
 	
 	// wenn das fahrzeug weiter als 250 einheiten vom welt-zentrum entfernt ist
@@ -137,68 +145,71 @@ function Roam () {
 		// berechne, aus der fahrzeugausrichtung und position, wo das zentrum der welt ist
 		var centerOfWorldFromMyView = carBody.transform.InverseTransformPoint(0, 0, 0);
 		// die x koorinate sagt mir ob das zentrum der welt links (negativ) oder rechts (positiv) von mir ist
-		// schr�nke diesen wert zwischen -10 und 10 ein (-54.2 wird zu -10, 123.0 wird zu 10.0, 5.0 bleibt konstanz)
+		// schraenke diesen wert zwischen -10 und 10 ein (-54.2 wird zu -10, 123.0 wird zu 10.0, 5.0 bleibt konstanz)
 		turnAngle = Mathf.Min(10, Mathf.Max(-10, centerOfWorldFromMyView.x));
-		// setze den wert als drehwinkel f�r die r�der
-		carSteeringScript.SetDirection(turnAngle);
+		// setze den wert als drehwinkel faer die raeder
+		rotation = turnAngle;
 	}
 	
 	turnAngle = 10;
-	// wenn der linke oder der rechte strahl eine kollision ausgel�st hat
+	// wenn der linke oder der rechte strahl eine kollision ausgelaest hat
 	// (distanz der kollision ungleich dem standartwert von oben)
 	if ((distanceToLeftCollision != rayLength + 1) || (distanceToRightCollision != rayLength + 1)) {
 		// der kleinere wert von linker und rechter kollisionsentfernung
 		var minHitDistance = Mathf.Min(distanceToLeftCollision, distanceToRightCollision);
 		// ist die kollisionsentfernung klein
 		if (minHitDistance < 5) {
-			// erh�he den einschlagwinkel der r�der
+			// erhaehe den einschlagwinkel der raeder
 			turnAngle = 20;
 		// ist die kollisionsentfernung sehr klein
 		} else if (minHitDistance < 1) {
-			// erh�he den einschlagwinkel der r�der noch mehr
+			// erhaehe den einschlagwinkel der raeder noch mehr
 			turnAngle = 40;
 		}
 		
-		// ist die linke kollision n�her als die rechte
+		// ist die linke kollision naeher als die rechte
 		if (distanceToLeftCollision < distanceToRightCollision) {
 			// drehe nach links, mit dem einschlagwinkel
-			carSteeringScript.SetDirection(turnAngle);
-		// ansonsten (die rechte kollision ist n�her als die linke)
+			rotation = turnAngle;
+		// ansonsten (die rechte kollision ist naeher als die linke)
 		} else {
 			// drehe nach rechts mit dem einschlagwinkel
-			carSteeringScript.SetDirection(-turnAngle);
+			rotation = -turnAngle;
 		}
 	}
 	
-	// berechne einen wert der die durchschnittsgeschwindigkeit repr�sentiert
+	// berechne einen wert der die durchschnittsgeschwindigkeit repraesentiert
 	avgMoveSpeed = (avgMoveSpeed * 0.9) + (carBody.GetComponent.<Rigidbody>().velocity.magnitude * 0.1);
 	
-	if (carBody.transform.parent.gameObject.name == "carprefabPlayer") {
+	/*if (carBody.transform.parent.gameObject.name == "carprefabPlayer") {
 		Debug.Log("avgSpeed "+avgMoveSpeed+" vel "+carBody.GetComponent.<Rigidbody>().velocity.magnitude);
-	}
+	}*/
 	// ist die durchschnittsgeschwindigkeit sehr klein aber nicht negativ
-	// (nach ungef�hr 3 sekunden gestoppt trifft dies zu)
+	// (nach ungefaehr 3 sekunden gestoppt trifft dies zu)
 	// 
 	if ((avgMoveSpeed < 0.05) && (avgMoveSpeed > 0)) {
 		// setze die durchschnittsgeschwindigkeit als negativ
 		avgMoveSpeed = -1000;
 	}
 	// ist die durchschnittsgeschwindigkeit negativ
-	// (dies wurde durch die vorherige if-abfrage ausgel�st)
+	// (dies wurde durch die vorherige if-abfrage ausgelaest)
 	if (avgMoveSpeed < 0) {
-		// bewege dich r�ckw�rts
-		carSteeringScript.SetAcceleration(-30);
+		// bewege dich raeckwaerts
+		acceleration = -30;
 	}
 	// anmerkung:
 	// die negative durchschnittsgeschwindigkeit wird nach einigen sekunden wieder 
 	//   positiv (das weil carBody.rigidbody.velocity.magnitude immer positiv ist, 
 	//     siehe erste berechnung von avgMoveSpeed)
-	// in diesem moment setzt die forw�rtsbewegung wieder ein
+	// in diesem moment setzt die forwaertsbewegung wieder ein
 	
-	// wenn wir uns r�ckw�rts bewegen muss der einschlag der r�der in die andere richtung gehen
+	// wenn wir uns raeckwaerts bewegen muss der einschlag der raeder in die andere richtung gehen
 	// kennen wir zbsp aus dem einparkieren ohne servolenkung
 	if (avgMoveSpeed < 0.0) {
-		// drehe die r�der in die andere richtung
-		carSteeringScript.SetDirection(-carSteeringScript.GetDirection());
+		// drehe die raeder in die andere richtung
+		rotation = -rotation;
 	}
+	
+	carController.Move(rotation, acceleration, acceleration, handbrake);
+
 }
