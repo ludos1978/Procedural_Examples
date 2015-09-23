@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿// MIT License
+
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
