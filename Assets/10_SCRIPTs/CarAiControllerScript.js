@@ -6,6 +6,7 @@ enum STATE {
   EVADE,
   ROAM
 }
+
 private var currentState : STATE = STATE.ROAM;
 
 //private var carSteeringScript : CarSteeringScript;

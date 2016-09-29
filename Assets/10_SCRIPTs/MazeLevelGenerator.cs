@@ -52,8 +52,16 @@ public class MazeLevelGenerator : MonoBehaviour {
 		combineMeshes.Combine (models);
 
 		// hide all models
-		foreach (GameObject mdl in models) {
+		/*foreach (GameObject mdl in models) {
 			mdl.SetActive(false);
+		}*/
+
+		for (int x = 0; x < mazeSizeX; x++) {
+			string s = "";
+			for (int y= 0; y < mazeSizeY; y++) {
+				s += level[x][y]+" ";
+			}
+			Debug.Log(s);
 		}
 
 		return level;
