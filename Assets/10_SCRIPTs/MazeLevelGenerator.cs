@@ -36,7 +36,7 @@ public class MazeLevelGenerator : MonoBehaviour {
 
 	void Start () {
 		// level size must be uneven number 
-		int[][] levelData = SceneCreate (65, 65, 0);
+		int[][] levelData = SceneCreate (17, 17, 0);
 	}
 
 	public int[][] SceneCreate (int mazeSizeX, int mazeSizeY, int seed) {
@@ -48,8 +48,10 @@ public class MazeLevelGenerator : MonoBehaviour {
 		InstantiateMeshes ();
 
 		// combine the mesh
-		CombineMeshes combineMeshes = GetComponent<CombineMeshes> ();
-		combineMeshes.Combine (models);
+        if (true) {
+            CombineMeshes combineMeshes = GetComponent<CombineMeshes> ();
+            combineMeshes.Combine (models);
+        }
 
 		// hide all models
 		/*foreach (GameObject mdl in models) {
