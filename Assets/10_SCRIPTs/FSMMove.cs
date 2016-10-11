@@ -80,4 +80,10 @@ public class FSMMove : MonoBehaviour {
 			return true;
 		return false;
 	}
+
+    float rotationSpeed = 5;
+    // wie in eine richtung rotieren mit einer maximalen (konstanten) rotationsgeschwindigkeit
+    bool RotateTo (float targetAngle) {
+        transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.LookRotation (targetAngle - transform.rotation.eulerAngles.y), rotationSpeed);
+    }
 }
