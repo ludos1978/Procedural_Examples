@@ -36,13 +36,11 @@ public class MazeLevelGenerator : MonoBehaviour {
 
 	void Start () {
 		// level size must be uneven number 
-		int[][] levelData = SceneCreate (17, 17, 0);
+		//SceneCreate (17, 17, 0);
 	}
 
 	public int[][] SceneCreate (int mazeSizeX, int mazeSizeY, int seed) {
-		levelSizeX = mazeSizeX;
-		levelSizeY = mazeSizeY;
-		InitLevel ();
+        InitLevel (mazeSizeX, mazeSizeY);
 		GenerateMaze (seed);
 		GenerateRooms ();
 		InstantiateMeshes ();
@@ -58,9 +56,9 @@ public class MazeLevelGenerator : MonoBehaviour {
 			mdl.SetActive(false);
 		}*/
 
-		for (int x = 0; x < mazeSizeX; x++) {
+        for (int x = 0; x < levelSizeX; x++) {
 			string s = "";
-			for (int y= 0; y < mazeSizeY; y++) {
+            for (int y= 0; y < levelSizeY; y++) {
 				s += level[x][y]+" ";
 			}
 			Debug.Log(s);
@@ -69,6 +67,12 @@ public class MazeLevelGenerator : MonoBehaviour {
 		return level;
 	}
 	
+    public void SetWall (int x, int y, int value) {
+        if ((x >= 0) && (x < level.Length) && (y >= 0) && (y < level [0].Length)) {
+            level [x] [y] = value;
+        }
+    }
+
 	public void SceneDestroy () {
 		foreach (var model in models) {
 			Destroy (model);
@@ -82,7 +86,10 @@ public class MazeLevelGenerator : MonoBehaviour {
 		
 	}
 	
-	public void InitLevel () {
+    public void InitLevel (int mazeSizeX, int mazeSizeY) {
+        levelSizeX = mazeSizeX;
+        levelSizeY = mazeSizeY;
+
 		level = new int[levelSizeX][];
 		for (x = 0; x < levelSizeX; x++) {
 			level [x] = new int[levelSizeY];
@@ -206,6 +213,7 @@ public class MazeLevelGenerator : MonoBehaviour {
 	}
 
 	public void InstantiateMeshes () {
+        Debug.Log ("MazeLevelGenerator.InstantiateMeshes");
 		Quaternion rot = Quaternion.identity;
 		GameObject levelElement = null;
 		GameObject fxLayerLevelElement = null;
