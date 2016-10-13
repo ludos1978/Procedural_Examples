@@ -9,7 +9,7 @@ public class PosAndDir {
     public Vector2 dir; // -1,0,1 / -1,0,1   , z.Bsp links = -1,0 , rechts = 1,0 , oben = 0,1 , unten = 0,-1
 }
 
-
+[RequireComponent(typeof(CombineMeshes))]
 public class MazeImageGenerate : MonoBehaviour {
 
     Color openPixel = Color.white;
@@ -30,7 +30,7 @@ public class MazeImageGenerate : MonoBehaviour {
     public List<PosAndDir> posAndDirList = new List<PosAndDir> ();
     public Color doorColor = new Color(1, 0.8f, 0.8f, 1);
 
-    MazeLevelGenerator mazeLevelGen;
+    MazeMeshGenerator mazeLevelGen;
 
 	// Use this for initialization
 	void Start () {
@@ -39,7 +39,7 @@ public class MazeImageGenerate : MonoBehaviour {
         renderer.material.SetTexture ("_MainTex", tex);
         //GenerateNoise ();
 
-        mazeLevelGen = GetComponent<MazeLevelGenerator>();
+        mazeLevelGen = GetComponent<MazeMeshGenerator>();
         mazeLevelGen.InitLevel (41, 31);
 
         // aktualisiere alle sekunden
@@ -71,7 +71,7 @@ public class MazeImageGenerate : MonoBehaviour {
                 mazeLevelGen.SetWall (x, y, Mathf.RoundToInt(tex.GetPixel(x,y).grayscale));
             }
         }
-        mazeLevelGen.InstantiateMeshes ();
+        mazeLevelGen.GenerateMeshes ();
     }
 
     void SetAllWalls () {

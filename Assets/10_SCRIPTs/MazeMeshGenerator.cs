@@ -8,16 +8,17 @@ using System.Collections.ObjectModel;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-
-public class MazeLevelGenerator : MonoBehaviour {
+[RequireComponent(typeof(CombineMeshes))]
+public class MazeMeshGenerator : MonoBehaviour {
+    // level data
 	private int[][] level;
-// temp variables
-	private int x;
-	private int y;
-	private float zPos = 0;
 
-	private int levelSizeX = 1;
-	private int levelSizeY = 1;
+    [HideInInspector]
+	public int levelSizeX = 1;
+    [HideInInspector]
+    public int levelSizeY = 1;
+
+    private float zPos = 0;
 
 // instance arrays
 	private List<GameObject> models = new List<GameObject> ();
@@ -28,43 +29,65 @@ public class MazeLevelGenerator : MonoBehaviour {
 	public GameObject mazeX0X0Prefab;
 	public GameObject exitPrefab;
 
-	void Update () {
-	}
+    public void InitLevel (int mazeSizeX, int mazeSizeY) {
+        levelSizeX = mazeSizeX;
+        levelSizeY = mazeSizeY;
 
-	void Start () {
-		// level size must be uneven number 
-		//SceneCreate (17, 17, 0);
-	}
+        level = new int[levelSizeX][];
+        for (int x = 0; x < levelSizeX; x++) {
+            level [x] = new int[levelSizeY];
+            for (int y = 0; y < levelSizeY; y++) {
+                level [x] [y] = 1;
+                // wall
+            }
+        }
+    }
 
-	public int[][] SceneCreate (int mazeSizeX, int mazeSizeY, int seed) {
-        InitLevel (mazeSizeX, mazeSizeY);
-		InstantiateMeshes ();
+    public int GetWall (int x, int y) {
+        if (level == null) {
+            Debug.Log ("MazeLEvelGenerator.GetWall: level not initialized");
+            return -1;
+        }
 
-		// combine the mesh
+        if ((x >= 0) && (x < level.Length) && (y >= 0) && (y < level [0].Length)) {
+            return level [x] [y];
+        }
+        return -1;
+    }
+
+    public void SetWall (int x, int y, int value) {
+        if (level == null) {
+            Debug.Log ("MazeLEvelGenerator.SetWall: level not initialized");
+            return;
+        }
+
+        if ((x >= 0) && (x < level.Length) && (y >= 0) && (y < level [0].Length)) {
+            level [x] [y] = value;
+        }
+    }
+
+    public string ToString () {
+        string logMessage = "";
+        for (int x = 0; x < levelSizeX; x++) {
+            for (int y= 0; y < levelSizeY; y++) {
+                logMessage += level[x][y]+" ";
+            }
+            logMessage += "\n";
+        }
+        return logMessage;
+    }
+
+    public void GenerateMeshes () {
+        if (level == null) {
+            Debug.Log ("MazeLEvelGenerator.GenerateLevel: level not initialized");
+            return;
+        }
+        InstantiateMeshes ();
+
+        // combine the mesh
         if (true) {
             CombineMeshes combineMeshes = GetComponent<CombineMeshes> ();
             combineMeshes.Combine (models);
-        }
-
-		// hide all models
-		/*foreach (GameObject mdl in models) {
-			mdl.SetActive(false);
-		}*/
-
-        for (int x = 0; x < levelSizeX; x++) {
-			string s = "";
-            for (int y= 0; y < levelSizeY; y++) {
-				s += level[x][y]+" ";
-			}
-			Debug.Log(s);
-		}
-
-		return level;
-	}
-	
-    public void SetWall (int x, int y, int value) {
-        if ((x >= 0) && (x < level.Length) && (y >= 0) && (y < level [0].Length)) {
-            level [x] [y] = value;
         }
     }
 
@@ -73,25 +96,18 @@ public class MazeLevelGenerator : MonoBehaviour {
 			Destroy (model);
 		}
 		models = new List<GameObject> ();
-
-		level = null;
+		//level = null;
 	}
 	
-    public void InitLevel (int mazeSizeX, int mazeSizeY) {
-        levelSizeX = mazeSizeX;
-        levelSizeY = mazeSizeY;
+	private void InstantiateMeshes () {
+        // destroy old level
+        if (models != null) {
+            SceneDestroy ();
+        }
 
-		level = new int[levelSizeX][];
-		for (x = 0; x < levelSizeX; x++) {
-			level [x] = new int[levelSizeY];
-			for (y = 0; y < levelSizeY; y++) {
-				level [x] [y] = 1;
-				// wall
-			}
-		}
-	}
+        // make new clean object list
+        models = new List<GameObject> ();
 
-	public void InstantiateMeshes () {
         Debug.Log ("MazeLevelGenerator.InstantiateMeshes");
 		Quaternion rot = Quaternion.identity;
 		GameObject levelElement = null;
@@ -189,21 +205,6 @@ public class MazeLevelGenerator : MonoBehaviour {
 		levelElement.transform.parent = transform;
 		models.Add (levelElement);
 	}
-
-	/*public void CombineMeshes () {
-		MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
-		CombineInstance[] combine = new CombineInstance[meshFilters.Length];
-		int i = 0;
-		while (i < meshFilters.Length) {
-			combine[i].mesh = meshFilters[i].sharedMesh;
-			combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-			meshFilters[i].gameObject.active = false;
-			i++;
-		}
-		transform.GetComponent<MeshFilter>().mesh = new Mesh();
-		transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine);
-		transform.gameObject.active = true;
-	}*/
 
 	// converter functions for location's
 	public int[] WorldToGridPos (Vector3 worldPos) {

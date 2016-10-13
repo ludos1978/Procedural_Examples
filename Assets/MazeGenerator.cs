@@ -4,28 +4,19 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 
 public class MazeGenerator : MonoBehaviour {
-    private int[][] level;
     private Collection<int[]> open = new Collection<int[]> ();
     private List<int> deadEndInt = new List<int> ();
     private List<int> roomInt = new List<int> ();
 
-    MazeLevelGenerator levelGenerator;
+    MazeMeshGenerator levelGenerator;
 
-    private int levelSizeX = 1;
-    private int levelSizeY = 1;
-
-    public void InitLevel (int mazeSizeX, int mazeSizeY) {
-        levelSizeX = mazeSizeX;
-        levelSizeY = mazeSizeY;
-
-        level = new int[levelSizeX][];
-        for (int x = 0; x < levelSizeX; x++) {
-            level [x] = new int[levelSizeY];
-            for (int y = 0; y < levelSizeY; y++) {
-                level [x] [y] = 1;
-                // wall
-            }
-        }
+    // Use this for initialization
+    void Start () {
+        levelGenerator = GetComponent<MazeMeshGenerator> ();
+        levelGenerator.InitLevel (15, 15);
+        GenerateMaze (0);
+        GenerateRooms ();
+        levelGenerator.GenerateMeshes ();
     }
 
     public void Clear () {
@@ -33,34 +24,11 @@ public class MazeGenerator : MonoBehaviour {
         roomInt = new List<int> ();
     }
         
-	// Use this for initialization
-	void Start () {
-        levelGenerator = GetComponent<MazeLevelGenerator> ();
-        InitLevel (15, 15);
-        GenerateMaze (0);
-        GenerateRooms ();
-
-        levelGenerator.InitLevel (15, 15);
-        for (int x = 0; x < levelSizeX; x++) {
-            for (int y = 0; y < levelSizeY; y++) {
-                levelGenerator.SetWall (x, y, level[x][y]);
-            }
-        }
-        levelGenerator.InstantiateMeshes ();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-
-
     // generate the level-data
     public void GenerateMaze (int seed) {
-
-
         // entry (level start)
-        level [1] [1] = 0;
+        levelGenerator.SetWall(1,1,0);
+        //level [1] [1] = 0;
         // open
         Random.seed = seed;
 
@@ -85,11 +53,13 @@ public class MazeGenerator : MonoBehaviour {
                 location [0] - location [2],
                 location [1] - location [3]
             };
-            if ((level [newLocation [0]] [newLocation [1]] == 1) || (Random.Range (0, 10) == 0)) {
+            if ((levelGenerator.GetWall(newLocation [0],newLocation [1]) == 1) || (Random.Range (0, 10) == 0)) {
                 // not in the maze yet or 10% chance
                 // mark as open
-                level [currentWall [0]] [currentWall [1]] = 0;
-                level [newLocation [0]] [newLocation [1]] = 0;
+                levelGenerator.SetWall(currentWall [0],currentWall [1],0);
+                //level [currentWall [0]] [currentWall [1]] = 0;
+                levelGenerator.SetWall(newLocation [0],newLocation [1],0);
+                //level [newLocation [0]] [newLocation [1]] = 0;
                 deadEndInt.Remove (oldLocation [0] * 10000 + oldLocation [1]);
                 // check all 4 adjacent positions for possible continuing
                 var directions = new int[][] {
@@ -110,9 +80,10 @@ public class MazeGenerator : MonoBehaviour {
                         newLocation [1] + posDiff [1]
                     };
                     // if next location within area
-                    if (((nextLocation [0] > 0) && (nextLocation [0] < levelSizeX - 1)) && ((nextLocation [1] > 0) && (nextLocation [1] < levelSizeY - 1))) {
+                    if (((nextLocation [0] > 0) && (nextLocation [0] < levelGenerator.levelSizeX - 1)) && ((nextLocation [1] > 0) && (nextLocation [1] < levelGenerator.levelSizeY - 1))) {
                         // if next location is a wall
-                        if (level [nextLocation [0] + posDiff [0]] [nextLocation [1] + posDiff [1]] == 1) {
+                        if (levelGenerator.GetWall(nextLocation [0] + posDiff [0],nextLocation [1] + posDiff [1]) == 1) {
+                        //if (level [nextLocation [0] + posDiff [0]] [nextLocation [1] + posDiff [1]] == 1) {
                             open.Add (new int[] {
                                 nextLocation [0],
                                 nextLocation [1],
@@ -129,31 +100,34 @@ public class MazeGenerator : MonoBehaviour {
             }
         }
         // open the level exit (level exit)
-        level [levelSizeX - 2] [levelSizeY - 2] = 0;
+        levelGenerator.SetWall(levelGenerator.levelSizeX - 2,levelGenerator.levelSizeY - 2, 0);
+        //level [levelGenerator.levelSizeX - 2] [levelGenerator.levelSizeY - 2] = 0;
         // open
-        level [levelSizeX - 2] [levelSizeY - 1] = 0;
+        levelGenerator.SetWall(levelGenerator.levelSizeX - 2,levelGenerator.levelSizeY - 1, 0);
+        //level [levelGenerator.levelSizeX - 2] [levelGenerator.levelSizeY - 1] = 0;
         // open
         // remove dead ends at exit
-        deadEndInt.Remove ((levelSizeX - 1) * 10000 + (levelSizeY - 1));
-        deadEndInt.Remove ((levelSizeX - 2) * 10000 + (levelSizeY - 1));
-        deadEndInt.Remove ((levelSizeX - 1) * 10000 + (levelSizeY - 2));
-        deadEndInt.Remove ((levelSizeX - 2) * 10000 + (levelSizeY - 2));
+        deadEndInt.Remove ((levelGenerator.levelSizeX - 1) * 10000 + (levelGenerator.levelSizeY - 1));
+        deadEndInt.Remove ((levelGenerator.levelSizeX - 2) * 10000 + (levelGenerator.levelSizeY - 1));
+        deadEndInt.Remove ((levelGenerator.levelSizeX - 1) * 10000 + (levelGenerator.levelSizeY - 2));
+        deadEndInt.Remove ((levelGenerator.levelSizeX - 2) * 10000 + (levelGenerator.levelSizeY - 2));
     }
 
     public void GenerateRooms () {
-        int freePlaces = Mathf.FloorToInt ((levelSizeX * levelSizeY) / 10);
+        int freePlaces = Mathf.FloorToInt ((levelGenerator.levelSizeX * levelGenerator.levelSizeY) / 10);
 
         while (freePlaces > 0) {
-            int roomSizeX = Mathf.Max (1, Mathf.Min (4, (levelSizeX / 8))) * 2 + 1;
+            int roomSizeX = Mathf.Max (1, Mathf.Min (4, (levelGenerator.levelSizeX / 8))) * 2 + 1;
             //Random.Range(1, 3) * 2;
-            int roomSizeY = Mathf.Max (1, Mathf.Min (4, (levelSizeY / 8))) * 2 + 1;
+            int roomSizeY = Mathf.Max (1, Mathf.Min (4, (levelGenerator.levelSizeY / 8))) * 2 + 1;
             //Random.Range(1, 3) * 2;
-            int roomPosX = (Mathf.FloorToInt (Random.Range (1, levelSizeX - roomSizeX - 1) / 2) + 1) * 2 - 1;
-            int roomPosY = (Mathf.FloorToInt (Random.Range (1, levelSizeY - roomSizeY - 1) / 2) + 1) * 2 - 1;
+            int roomPosX = (Mathf.FloorToInt (Random.Range (1, levelGenerator.levelSizeX - roomSizeX - 1) / 2) + 1) * 2 - 1;
+            int roomPosY = (Mathf.FloorToInt (Random.Range (1, levelGenerator.levelSizeY - roomSizeY - 1) / 2) + 1) * 2 - 1;
             //      Debug.Log ("I: GenerateRooms: " + roomSizeX + " " + roomSizeY + " at " + roomPosX + " " + roomPosY);
             for (int x = roomPosX; x < roomPosX + roomSizeX; x++) {
                 for (int y = roomPosY; y < roomPosY + roomSizeY; y++) {
-                    level [x] [y] = 0;
+                    //level [x] [y] = 0;
+                    levelGenerator.SetWall(x,y, 0);
                     // remove dead ends that are next to a room
                     deadEndInt.Remove (x * 10000 + y);
                     deadEndInt.Remove (x * 10000 + (y - 1));
@@ -170,13 +144,13 @@ public class MazeGenerator : MonoBehaviour {
     }
 
 
-    // get positions for pickups etc...
+    // get entry positions for pickups etc and spawn positions
     public Collection<Vector3> GetEntryLocations () {
         Collection<Vector3> openSpaces = new Collection<Vector3> ();
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {
                 // is free && is not at startlocation && is not possibly far away to walk (3/3)
-                if ((level [x] [y] == 0) && !((x == 1) && (y == 1)) && !((x == 3) && (y == 3))) {
+                if ((levelGenerator.GetWall(x,y) == 0) && !((x == 1) && (y == 1)) && !((x == 3) && (y == 3))) {
                     openSpaces.Add (levelGenerator.GridToWorldPos (x, y));
                 }
             }
@@ -184,6 +158,7 @@ public class MazeGenerator : MonoBehaviour {
         return openSpaces;
     }
 
+    // get room positions for pickups etc and spawn positions
     public Collection<Vector3> GetRoomLocations () {
         Collection<Vector3> openSpaces = new Collection<Vector3> ();
         for (int rId=0; rId<roomInt.Count; rId++) {
@@ -195,6 +170,7 @@ public class MazeGenerator : MonoBehaviour {
         return openSpaces;
     }
 
+    // get dead end (sackgassen) positions for pickups etc and spawn positions
     public Collection<Vector3> GetDeadEndLocations () {
         Collection<Vector3> openSpaces = new Collection<Vector3> ();
         for (int rId=0; rId<deadEndInt.Count; rId++) {

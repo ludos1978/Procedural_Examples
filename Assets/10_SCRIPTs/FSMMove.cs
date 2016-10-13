@@ -19,18 +19,21 @@ public class FSMMove : MonoBehaviour {
 	public Vector3[] positions;
 	public int positionIndex = 0;
 
+    public float startChaseDistance = 20;
+    public float startFleeDistance = 10;
+
 	// Update is called once per frame
 	void Update () {
 		switch (currentState) {
 		case STATE.IDLE:
-			if ((target.transform.position - transform.position).magnitude < 10f) {
+            if ((target.transform.position - transform.position).magnitude < startChaseDistance) {
 				currentState = STATE.CHASE;
 			}
 			break;
 
 		case STATE.CHASE:
 			Chase ();
-			if ((target.transform.position - transform.position).magnitude < 1f) {
+            if ((target.transform.position - transform.position).magnitude < startFleeDistance) {
 				currentState = STATE.FLEE_ENTER;
 			}
 			break;
@@ -40,7 +43,7 @@ public class FSMMove : MonoBehaviour {
 			if (MoveTo (movementTarget)) {
 				positionIndex = (positionIndex + 1) % positions.Length;
 			}
-			if ((target.transform.position - transform.position).magnitude < 3f) {
+            if ((target.transform.position - transform.position).magnitude < startChaseDistance) {
 				currentState = STATE.CHASE;
 			}
 			break;
@@ -60,6 +63,7 @@ public class FSMMove : MonoBehaviour {
 	}
 
 	void Chase () {
+        RotateTo (target.transform.position);
 		MoveTo (target.transform.position);
 	}
 
@@ -76,14 +80,22 @@ public class FSMMove : MonoBehaviour {
 		float thisSpeed = Mathf.Min(speed * Time.deltaTime, deltaPos.magnitude);
 		transform.position += deltaPos.normalized * thisSpeed;
 
-		if ((transform.position - movementTarget).magnitude < 0.01f)
-			return true;
+        if ((transform.position - movementTarget).magnitude < 0.01f) {
+            return true;
+        }
 		return false;
 	}
 
     float rotationSpeed = 5;
     // wie in eine richtung rotieren mit einer maximalen (konstanten) rotationsgeschwindigkeit
-    bool RotateTo (float targetAngle) {
-        transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.LookRotation (targetAngle - transform.rotation.eulerAngles.y), rotationSpeed);
+    bool RotateTo (Vector3 targetPosition) {
+        return RotateTo (Quaternion.LookRotation (targetPosition - transform.position));
+    }
+    bool RotateTo (Quaternion targetRotation) {
+        transform.rotation = Quaternion.RotateTowards (transform.rotation, targetRotation, rotationSpeed);
+        if (Quaternion.Angle (transform.rotation, targetRotation) < 1) {
+            return true;
+        }
+        return false;
     }
 }
