@@ -86,13 +86,13 @@ public class FSMMove : MonoBehaviour {
 		return false;
 	}
 
-    float rotationSpeed = 5;
+    public float maxRotationSpeed = 60f; // maximal 60 grad pro sekunde rotieren
     // wie in eine richtung rotieren mit einer maximalen (konstanten) rotationsgeschwindigkeit
     bool RotateTo (Vector3 targetPosition) {
         return RotateTo (Quaternion.LookRotation (targetPosition - transform.position));
     }
     bool RotateTo (Quaternion targetRotation) {
-        transform.rotation = Quaternion.RotateTowards (transform.rotation, targetRotation, rotationSpeed);
+        transform.rotation = Quaternion.RotateTowards (transform.rotation, targetRotation, maxRotationSpeed * Time.deltaTime);
         if (Quaternion.Angle (transform.rotation, targetRotation) < 1) {
             return true;
         }
