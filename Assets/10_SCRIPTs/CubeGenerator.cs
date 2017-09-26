@@ -18,7 +18,7 @@ public class CubeGenerator : MonoBehaviour {
 
 		for (int i=0; i<1000; i++) {
 			Vector3 basisPosition = new Vector3(
-				Random.Range(0f, 1000f), 0, Random.Range(0f, 1000f)
+				Random.Range(5, terrain.terrainData.size.x-5), 0, Random.Range(5, terrain.terrainData.size.z-5)
 			);
 			// mittels mehreren raycast die hoehe bestimmen
 			Vector3 pos0 = GetHeightPosition( new Vector3(basisPosition.x+5, 0, basisPosition.z+5) );
@@ -28,26 +28,31 @@ public class CubeGenerator : MonoBehaviour {
 			float minY = Mathf.Min( Mathf.Min(pos0.y, pos1.y), Mathf.Min(pos2.y, pos3.y) );
 			Vector3 pos = new Vector3(basisPosition.x, minY, basisPosition.z);
 			CreateObjectInstance( pos );
+			SetHeight(pos, 10, 10);
 		}
 		// SetHeight(pos);
 	}
 	
 	/// <summary>
-	/// not yet fully functional...
+	/// not yet fully functional ...
 	/// </summary>
-	public void SetHeight (Vector3 position) {
-		int startX = (int)(position.x / terrain.terrainData.heightmapWidth);
-		int startY = (int)(position.y / terrain.terrainData.heightmapHeight);
+	public void SetHeight (Vector3 position, float xSize, float zSize) {
+		Debug.Log(terrain.terrainData.heightmapScale+" "+terrain.terrainData.heightmapWidth+" "+terrain.terrainData.heightmapHeight+" "+terrain.terrainData.heightmapResolution);
+		Debug.Log(position+" "+terrain.terrainData.size);
+		int startX = Mathf.FloorToInt(position.x / terrain.terrainData.size.x * terrain.terrainData.heightmapWidth);
+		int startZ = Mathf.FloorToInt(position.z / terrain.terrainData.size.z * terrain.terrainData.heightmapHeight);
+		int rangeX = Mathf.CeilToInt(xSize / terrain.terrainData.size.x * terrain.terrainData.heightmapWidth);
+		int rangeZ = Mathf.CeilToInt(zSize / terrain.terrainData.size.z * terrain.terrainData.heightmapHeight);
+		float h = position.y / terrain.terrainData.heightmapScale.y;
 
-		float h = 0; //position.z / terrain.terrainData.heightmapScale.y;
-		Debug.Log(""+startX+"/"+startY+" "+h);
-		float[,] heights = new float[4,4];
-		for (int x=0; x<4; x++) {
-			for (int y=0; y<4; y++) {
-				heights[x,y] = h;
+		Debug.Log(""+startX+"/"+startZ+" "+h+" "+rangeX+" "+rangeZ);
+		float[,] heights = new float[rangeZ,rangeX];
+		for (int x=0; x<rangeX; x++) {
+			for (int z=0; z<rangeZ; z++) {
+				heights[z,x] = h;
 			}
 		}
-		terrain.terrainData.SetHeights(startX, startY, heights);
+		terrain.terrainData.SetHeights(startX, startZ, heights);
 		terrain.Flush();
 	}
 
