@@ -245,7 +245,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 100006, guid: b544816461f324e56a39767fdeb5b114, type: 2}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b544816461f324e56a39767fdeb5b114, type: 2}
@@ -373,9 +373,9 @@ MonoBehaviour:
   hillsIcon: {fileID: 2800000, guid: 5e5a7853f82e54ab6912e5c20342dd73, type: 3}
   plateausIcon: {fileID: 2800000, guid: d56a2918dbaab45ae899828d981d8dff, type: 3}
   defaultTexture: {fileID: 2800000, guid: 07ec441dca83743ee8e1b259837acbd2, type: 3}
-  toolModeInt: 1
-  erosionTypeInt: 1
-  generatorTypeInt: 4
+  toolModeInt: 2
+  erosionTypeInt: 0
+  generatorTypeInt: 2
   isBrushOn: 0
   isBrushHidden: 0
   isBrushPainting: 0
@@ -423,23 +423,23 @@ MonoBehaviour:
   heightBlendPoints:
   - 0.19551282
   - 0.2275641
-  - 0.5277045
-  - 0.5641026
-  - 0.82371795
-  - 0.849359
+  - 0.48246795
+  - 0.7373718
+  - 0.8240391
+  - 0.9107064
   gradientStyles: []
   voronoiTypeInt: 0
   voronoiType: 0
-  voronoiCells: 32
+  voronoiCells: 16
   voronoiFeatures: 1
   voronoiScale: 0.5
-  voronoiBlend: 0.674
+  voronoiBlend: 1
   diamondSquareDelta: 0.4
   diamondSquareBlend: 1
-  perlinFrequency: 5
-  perlinAmplitude: 0.75
-  perlinOctaves: 3
-  perlinBlend: 1
+  perlinFrequency: 10
+  perlinAmplitude: 1
+  perlinOctaves: 8
+  perlinBlend: 0.2
   smoothBlend: 1
   smoothIterations: 1
   normaliseMin: 0
@@ -476,7 +476,7 @@ Terrain:
   m_CastShadows: 1
   m_DrawHeightmap: 1
   m_DrawTreesAndFoliage: 1
-  m_ReflectionProbeUsage: 1
+  m_ReflectionProbeUsage: 3
   m_MaterialType: 0
   m_LegacySpecular:
     serializedVersion: 2
@@ -493,7 +493,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 944823779}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -500, y: -70, z: -500}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -581,13 +581,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1250552606}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9, y: 38.8, z: -211.6}
+  m_LocalRotation: {x: 0.2101274, y: -0, z: -0, w: 0.97767407}
+  m_LocalPosition: {x: 500, y: 68, z: 457}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 24.26, y: 0, z: 0}
 --- !u!1 &1500336179
 GameObject:
   m_ObjectHideFlags: 0
@@ -603,7 +603,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1500336180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -699,6 +699,48 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1919997449
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1919997451}
+  - component: {fileID: 1919997450}
+  m_Layer: 0
+  m_Name: CubeGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1919997450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1919997449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da131a750382649498c96d305cc47cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectPrefab: {fileID: 100000, guid: cdf88fd73a5b34151b0757b09a327422, type: 3}
+  terrain: {fileID: 944823782}
+--- !u!4 &1919997451
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1919997449}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1933199462
 GameObject:
   m_ObjectHideFlags: 0
