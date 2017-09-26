@@ -8,11 +8,11 @@ public class TexGen : MonoBehaviour {
 	public Material mat;
 
 	// Use this for initialization
-	void Start () {
-		tex = new Texture2D(512, 512);
-		for (int x=0; x<512; x++) {
-			for (int y=0; y<512; y++) {
-				float v = Mathf.PerlinNoise(x*0.03f, y*0.03f);
+	void Update () {
+		tex = new Texture2D(64, 64);
+		for (int x=0; x<64; x++) {
+			for (int y=0; y<64; y++) {
+				float v = Mathf.PerlinNoise(x*0.03f+Time.time*0.1f, y*0.03f+Time.time*0.03f);
 				tex.SetPixel(x, y, new Color(v,v,v));
 			}
 		}
