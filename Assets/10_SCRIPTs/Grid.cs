@@ -8,12 +8,7 @@ public class Grid : MonoBehaviour {
 	public int sizeX = 8;
 	public int sizeY = 8;
 
-	// Use this for initialization
-	void Start () {
-		Initialize();
-	}
-
-	void Initialize() {
+	public void Initialize() {
 		grid = new List<List<int>>();
 		for (int x=0; x<sizeX; x++) {
 			grid.Add(new List<int>());
@@ -32,5 +27,15 @@ public class Grid : MonoBehaviour {
 			output += "\n";
 		}
 		return output;
+	}
+
+	public void Set(int x, int y, int value) {
+
+		if (((x >= 0) && (x < sizeX)) && ((y >= 0) && (y < sizeY))) {
+			grid[x][y] = value;
+		}
+		else {
+			Debug.LogError("invalid input values "+x+" "+y+" "+value);
+		}
 	}
 }
