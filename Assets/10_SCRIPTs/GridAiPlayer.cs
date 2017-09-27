@@ -2,35 +2,67 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class IntegerPosition {
+	[SerializeField]
+	public int posX;
+	[SerializeField]
+	public int posY;
+}
+
 public class GridAiPlayer : MonoBehaviour {
 
 	public int xPos = 5;
 	public int yPos = 7;
 	public Grid grid;
 	public GridPlayer player;
+	public float timeInterval = 1.5f;
+
+	public IntegerPosition[] waypoints;
+	public int currentWaypointIndex = 0;
 
 	// Use this for initialization
 	void Start () {
-		HandleInput();
+		HandleInput(xPos, yPos, true);
 		StartCoroutine(Interval());
 	}
 
 	IEnumerator Interval () {
 		while (true) {
-			yield return new WaitForSeconds(3);
+			yield return new WaitForSeconds(timeInterval);
 			Debug.Log("interval "+Time.time);
-			HandleInput();
+			if ((Mathf.Abs(player.xPos - xPos) + Mathf.Abs(player.yPos - yPos)) < 4) {
+				// follow player character
+				HandleInput(player.xPos, player.yPos, false);
+			}
+			else {
+				// waypoint controlled character
+				int targetXPos = waypoints[currentWaypointIndex].posX;
+				int targetYPos = waypoints[currentWaypointIndex].posY;
+				if (HandleInput(targetXPos, targetYPos, true)) {
+					// am ziel
+					currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+				} else {
+					// noch nicht am ziel
+				}
+			}
 		}
 	}
 
-	void HandleInput() {
+	bool HandleInput(int targetXPos, int targetYPos, bool follow) {
 		int desiredXPos = xPos;
 		int desiredYPos = yPos;
 
 		// here comes the AI
 		// zielpos - sourcepos -> bewegungsvector
-		int xOffset = player.xPos - xPos;
-		int yOffset = player.yPos - yPos;
+		// if follow
+		int xOffset = targetXPos - xPos;
+		int yOffset = targetYPos - yPos;
+		if (!follow) {
+			// flee
+			xOffset = xPos - targetXPos;
+			yOffset = yPos - targetYPos;
+		}
 
 		// move in the x direction, if horizontal distance larger then vertical distance
 		if (Mathf.Abs(xOffset) > Mathf.Abs(yOffset)) {
@@ -50,6 +82,7 @@ public class GridAiPlayer : MonoBehaviour {
 				desiredYPos -= 1;
 			}
 		}
+		
 
 		// move the player if the desired position is free
 		if (grid.Get(desiredXPos, desiredYPos) == 0) {
@@ -62,8 +95,10 @@ public class GridAiPlayer : MonoBehaviour {
 			Debug.LogWarning("you bumped into something!");
 		}
 
-		if ((player.xPos == xPos) && (player.yPos == yPos)) {
-			Debug.LogWarning("on player");
+		if ((targetXPos == xPos) && (targetYPos == yPos)) {
+			Debug.LogWarning("on target");
+			return true;
 		}
+		return false;
 	}
 }

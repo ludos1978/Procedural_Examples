@@ -8,6 +8,8 @@ public class GridPlayer : MonoBehaviour {
 	public int yPos = 3;
 	int lastPlayerInput = -1;
 	public Grid grid;
+	public float timeInterval = 1.5f;
+
 
 	// Use this for initialization
 	void Start () {
@@ -17,7 +19,7 @@ public class GridPlayer : MonoBehaviour {
 
 	IEnumerator Interval () {
 		while (true) {
-			yield return new WaitForSeconds(3);
+			yield return new WaitForSeconds(timeInterval);
 			Debug.Log("interval "+Time.time);
 			HandleInput();
 		}

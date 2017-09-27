@@ -152,7 +152,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e60d0f2d53c4f45cd9f0dd720f8a0cf8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -273,7 +273,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 833819047}
   m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
-  m_LocalPosition: {x: 2, y: 9, z: -4}
+  m_LocalPosition: {x: 8, y: 13, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -306,10 +306,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8db3843c5724349d79ac8c6756cb9e85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xPos: 5
-  yPos: 7
+  xPos: 13
+  yPos: 15
   grid: {fileID: 1643182579}
   player: {fileID: 1820824007}
+  timeInterval: 0.3
+  waypoints:
+  - posX: 11
+    posY: 8
+  - posX: 5
+    posY: 7
+  - posX: 8
+    posY: 12
+  currentWaypointIndex: 0
 --- !u!4 &834397403
 Transform:
   m_ObjectHideFlags: 0
@@ -368,7 +377,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e21ae1d82c82642b89766b986f7d3ab4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -437,7 +446,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: b39eb86121dca40aeb95b4de7ea23cd5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -583,8 +592,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dc87c048217248d18c6faa7919624da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sizeX: 8
-  sizeY: 8
+  sizeX: 16
+  sizeY: 16
   levelPrefabs:
   - {fileID: 1360234171}
   - {fileID: 1965728873}
@@ -646,6 +655,7 @@ MonoBehaviour:
   xPos: 3
   yPos: 3
   grid: {fileID: 1643182579}
+  timeInterval: 0.3
 --- !u!4 &1820824008
 Transform:
   m_ObjectHideFlags: 0
@@ -691,7 +701,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 733f313e5e95146eca8c360ae42c4e5f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
