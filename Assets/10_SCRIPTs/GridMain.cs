@@ -7,7 +7,7 @@ public class GridMain : MonoBehaviour {
 	public Grid grid;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		grid.Initialize();
 
 		Debug.Log(grid);
@@ -16,9 +16,15 @@ public class GridMain : MonoBehaviour {
 
 		Debug.Log(grid);
 
-		grid.Set(11,-5,3);
-		
-		Debug.Log(grid);
+		for ( int x=0; x<grid.sizeX; x++) {
+			grid.Set(x, 0, 1);
+		}
+
+		grid.GenerateLevel();
+
+		grid.Set(0,5,1);
+
+		grid.GenerateLevel();
 	}
 	
 	// Update is called once per frame
