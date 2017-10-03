@@ -97,10 +97,10 @@ NavMeshSettings:
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 1.5
-    agentSlope: 45
-    agentClimb: 0.4
-    ledgeDropHeight: 3
-    maxJumpAcrossDistance: 12
+    agentSlope: 34.2
+    agentClimb: 0.5
+    ledgeDropHeight: 20
+    maxJumpAcrossDistance: 10
     minRegionArea: 2
     manualCellSize: 0
     cellSize: 0.16666667
@@ -334,7 +334,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 683120848}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.1, y: 2.14, z: -8.8}
+  m_LocalPosition: {x: -24.98, y: 5.83, z: -16.44}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

@@ -2,13 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class IntegerPosition {
-	[SerializeField]
-	public int posX;
-	[SerializeField]
-	public int posY;
-}
 
 public class GridAiPlayer : MonoBehaviour {
 

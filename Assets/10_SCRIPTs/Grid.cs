@@ -2,10 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class IntegerPosition {
+	[SerializeField]
+	public int posX;
+	[SerializeField]
+	public int posY;
+
+	public override string ToString() {
+		return (posX+"/"+posY);
+	}
+}
+
 public class Grid : MonoBehaviour {
 
 	public List<List<int>> grid;
+	[HideInInspector]
 	public int sizeX = 8;
+	[HideInInspector]
 	public int sizeY = 8;
 
 	public GameObject[] levelPrefabs;
@@ -15,12 +29,14 @@ public class Grid : MonoBehaviour {
 	/// <summary>
 	/// initialize the array with 0's
 	/// </summary>
-	public void Initialize() {
+	public void Initialize(int newSizeX, int newSizeY, int defaultValue = 0) {
+		sizeX = newSizeX;
+		sizeY = newSizeY;
 		grid = new List<List<int>>();
 		for (int x=0; x<sizeX; x++) {
 			grid.Add(new List<int>());
 			for (int y=0; y<sizeY; y++) {
-				grid[x].Add(0);
+				grid[x].Add(defaultValue);
 			}
 		}
 	}
@@ -50,6 +66,9 @@ public class Grid : MonoBehaviour {
 			Debug.LogError("Set: invalid input values "+x+" "+y+" "+value);
 		}
 	}
+	public void Set(IntegerPosition pos, int value) {
+		Set(pos.posX, pos.posY, value);
+	}
 
 	/// <summary>
 	/// check if x and y within the bounds of the array, if so return the value, if not return -1
@@ -62,6 +81,9 @@ public class Grid : MonoBehaviour {
 			Debug.LogError("Get: invalid input values "+x+" "+y);
 			return -1;
 		}
+	}
+	public int Get(IntegerPosition pos) {
+		return Get(pos.posX, pos.posY);
 	}
 
 	/// <summary>
