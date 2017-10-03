@@ -82,7 +82,6 @@ function Roam () {
 	var rotation : float 		= 0;
 	var handbrake : float 		= 0;
 	
-	
 	// startposition des raycasts
 	var raySource : Vector3;
 	// richtung des raycasts
@@ -100,7 +99,7 @@ function Roam () {
 	// startpunkt des strahls
 	// position des fahrzeugs + (umwandlungsmatrix von lokalkoordinaten in weltkooridnaten * vector aus der fahrzeugsicht)
 	raySource = carBody.transform.position+(carBody.transform.TransformDirection(Vector3(-.7,.6,0.8)));
-	// richtung des strahls
+	// rixchtung des strahls
 	// umwandlungsmatrix von lokalkoordinaten in weltkooridnaten * normalisierter richtungsvektor in fahrzeugkoodinaten
 	rayDirection = carBody.transform.TransformDirection(Vector3(-1,0,3).normalized);
 	// zeichne eine linie die den raycast representiert
@@ -133,6 +132,8 @@ function Roam () {
 		}
 	}
 	
+
+
 	// setze die raeder auf geradeaus
 	rotation = 0;
 	// setze eine standartbeschleunigung
@@ -145,6 +146,7 @@ function Roam () {
 	if ((carBody.transform.position - Vector3(0,carBody.transform.position.y,0)).magnitude > 250) {
 		// berechne, aus der fahrzeugausrichtung und position, wo das zentrum der welt ist
 		var centerOfWorldFromMyView = carBody.transform.InverseTransformPoint(0, 0, 0);
+
 		// die x koorinate sagt mir ob das zentrum der welt links (negativ) oder rechts (positiv) von mir ist
 		// schraenke diesen wert zwischen -10 und 10 ein (-54.2 wird zu -10, 123.0 wird zu 10.0, 5.0 bleibt konstanz)
 		turnAngle = Mathf.Min(10, Mathf.Max(-10, centerOfWorldFromMyView.x));
@@ -155,7 +157,7 @@ function Roam () {
 	turnAngle = 10;
 	// wenn der linke oder der rechte strahl eine kollision ausgelaest hat
 	// (distanz der kollision ungleich dem standartwert von oben)
-	if ((distanceToLeftCollision != rayLength + 1) || (distanceToRightCollision != rayLength + 1)) {
+	if ((distanceToLeftCollision <= rayLength) || (distanceToRightCollision <= rayLength)) {
 		// der kleinere wert von linker und rechter kollisionsentfernung
 		var minHitDistance = Mathf.Min(distanceToLeftCollision, distanceToRightCollision);
 		// ist die kollisionsentfernung klein
