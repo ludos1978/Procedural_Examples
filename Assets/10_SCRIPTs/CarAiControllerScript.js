@@ -45,28 +45,28 @@ function FixedUpdate () {
   switch (currentState) {
     case STATE.ROAM:
       Roam();
-      if (flee) {
-        currentState = STATE.EVADE;
-      }
-      if (chase) {
-        currentState = STATE.CHASE;
-      }
+				if (flee) {
+					currentState = STATE.EVADE;
+				}
+				if (chase) {
+					currentState = STATE.CHASE;
+				}
       break;
 
     case STATE.CHASE:
       Chase();
-      if (roam) {
-        currentState = STATE.ROAM;
-      }
+				if (roam) {
+					currentState = STATE.ROAM;
+				}
       break;
 
 
     case STATE.EVADE:
       Evade();
-      // in welchen zustand maechte ich wechseln
-      if (chase) {
-        currentState = STATE.CHASE;
-      }
+				// in welchen zustand maechte ich wechseln
+				if (chase) {
+					currentState = STATE.CHASE;
+				}
       break;
 	}
 }
@@ -131,8 +131,6 @@ function Roam () {
 			Debug.DrawLine (raySource, rightHit.point, Color.red);
 		}
 	}
-	
-
 
 	// setze die raeder auf geradeaus
 	rotation = 0;
@@ -142,76 +140,82 @@ function Roam () {
 	// die standart einschlagstaerke der raeder
 	var turnAngle = 10;
 	
-	// wenn das fahrzeug weiter als 250 einheiten vom welt-zentrum entfernt ist
-	if ((carBody.transform.position - Vector3(0,carBody.transform.position.y,0)).magnitude > 250) {
-		// berechne, aus der fahrzeugausrichtung und position, wo das zentrum der welt ist
-		var centerOfWorldFromMyView = carBody.transform.InverseTransformPoint(0, 0, 0);
+	// ------- ZU WEIT WEG -----
+		// wenn das fahrzeug weiter als 250 einheiten vom welt-zentrum entfernt ist
+		if ((carBody.transform.position - Vector3(0,carBody.transform.position.y,0)).magnitude > 250) {
+			// berechne, aus der fahrzeugausrichtung und position, wo das zentrum der welt ist
+			var centerOfWorldFromMyView = carBody.transform.InverseTransformPoint(0, 0, 0);
 
-		// die x koorinate sagt mir ob das zentrum der welt links (negativ) oder rechts (positiv) von mir ist
-		// schraenke diesen wert zwischen -10 und 10 ein (-54.2 wird zu -10, 123.0 wird zu 10.0, 5.0 bleibt konstanz)
-		turnAngle = Mathf.Min(10, Mathf.Max(-10, centerOfWorldFromMyView.x));
-		// setze den wert als drehwinkel faer die raeder
-		rotation = turnAngle;
-	}
-	
-	turnAngle = 10;
-	// wenn der linke oder der rechte strahl eine kollision ausgelaest hat
-	// (distanz der kollision ungleich dem standartwert von oben)
-	if ((distanceToLeftCollision <= rayLength) || (distanceToRightCollision <= rayLength)) {
-		// der kleinere wert von linker und rechter kollisionsentfernung
-		var minHitDistance = Mathf.Min(distanceToLeftCollision, distanceToRightCollision);
-		// ist die kollisionsentfernung klein
-		if (minHitDistance < 5) {
-			// erhaehe den einschlagwinkel der raeder
-			turnAngle = 20;
-		// ist die kollisionsentfernung sehr klein
-		} else if (minHitDistance < 1) {
-			// erhaehe den einschlagwinkel der raeder noch mehr
-			turnAngle = 40;
-		}
-		
-		// ist die linke kollision naeher als die rechte
-		if (distanceToLeftCollision < distanceToRightCollision) {
-			// drehe nach links, mit dem einschlagwinkel
+			// die x koorinate sagt mir ob das zentrum der welt links (negativ) oder rechts (positiv) von mir ist
+			// schraenke diesen wert zwischen -10 und 10 ein (-54.2 wird zu -10, 123.0 wird zu 10.0, 5.0 bleibt konstanz)
+			turnAngle = Mathf.Min(10, Mathf.Max(-10, centerOfWorldFromMyView.x));
+			// setze den wert als drehwinkel faer die raeder
 			rotation = turnAngle;
-		// ansonsten (die rechte kollision ist naeher als die linke)
-		} else {
-			// drehe nach rechts mit dem einschlagwinkel
-			rotation = -turnAngle;
 		}
-	}
+	// ------- ZU WEIT WEG -----
 	
-	// berechne einen wert der die durchschnittsgeschwindigkeit repraesentiert
-	avgMoveSpeed = (avgMoveSpeed * 0.9) + (carBody.GetComponent.<Rigidbody>().velocity.magnitude * 0.1);
+	// ------- AUSWEICHEN --------
+		turnAngle = 10;
+		// wenn der linke oder der rechte strahl eine kollision ausgelaest hat
+		// (distanz der kollision ungleich dem standartwert von oben)
+		if ((distanceToLeftCollision <= rayLength) || (distanceToRightCollision <= rayLength)) {
+			// der kleinere wert von linker und rechter kollisionsentfernung
+			var minHitDistance = Mathf.Min(distanceToLeftCollision, distanceToRightCollision);
+			// ist die kollisionsentfernung klein
+			if (minHitDistance < 5) {
+				// erhaehe den einschlagwinkel der raeder
+				turnAngle = 20;
+			// ist die kollisionsentfernung sehr klein
+			} else if (minHitDistance < 1) {
+				// erhaehe den einschlagwinkel der raeder noch mehr
+				turnAngle = 40;
+			}
+			
+			// ist die linke kollision naeher als die rechte
+			if (distanceToLeftCollision < distanceToRightCollision) {
+				// drehe nach links, mit dem einschlagwinkel
+				rotation = turnAngle;
+			// ansonsten (die rechte kollision ist naeher als die linke)
+			} else {
+				// drehe nach rechts mit dem einschlagwinkel
+				rotation = -turnAngle;
+			}
+		}
+	// ------- AUSWEICHEN --------
 	
-	/*if (carBody.transform.parent.gameObject.name == "carprefabPlayer") {
-		Debug.Log("avgSpeed "+avgMoveSpeed+" vel "+carBody.GetComponent.<Rigidbody>().velocity.magnitude);
-	}*/
-	// ist die durchschnittsgeschwindigkeit sehr klein aber nicht negativ
-	// (nach ungefaehr 3 sekunden gestoppt trifft dies zu)
-	// 
-	if ((avgMoveSpeed < 0.05) && (avgMoveSpeed > 0)) {
-		// setze die durchschnittsgeschwindigkeit als negativ
-		avgMoveSpeed = -1000;
-	}
-	// ist die durchschnittsgeschwindigkeit negativ
-	// (dies wurde durch die vorherige if-abfrage ausgelaest)
-	if (avgMoveSpeed < 0) {
-		// bewege dich raeckwaerts
-		acceleration = -30;
-	}
-	// anmerkung:
-	// die negative durchschnittsgeschwindigkeit wird nach einigen sekunden wieder 
-	//   positiv (das weil carBody.rigidbody.velocity.magnitude immer positiv ist, 
-	//     siehe erste berechnung von avgMoveSpeed)
-	// in diesem moment setzt die forwaertsbewegung wieder ein
-	
-	// wenn wir uns raeckwaerts bewegen muss der einschlag der raeder in die andere richtung gehen
-	// kennen wir zbsp aus dem einparkieren ohne servolenkung
-	if (avgMoveSpeed < 0.0) {
-		// drehe die raeder in die andere richtung
-		rotation = -rotation;
-	}
+	// ------- RUECKWAERTS FAHREN BEI KOLLSION --------
+		// berechne einen wert der die durchschnittsgeschwindigkeit repraesentiert
+		avgMoveSpeed = (avgMoveSpeed * 0.9) + (carBody.GetComponent.<Rigidbody>().velocity.magnitude * 0.1);
+		
+		/*if (carBody.transform.parent.gameObject.name == "carprefabPlayer") {
+			Debug.Log("avgSpeed "+avgMoveSpeed+" vel "+carBody.GetComponent.<Rigidbody>().velocity.magnitude);
+		}*/
+		// ist die durchschnittsgeschwindigkeit sehr klein aber nicht negativ
+		// (nach ungefaehr 3 sekunden gestoppt trifft dies zu)
+		// 
+		if ((avgMoveSpeed < 0.05) && (avgMoveSpeed > 0)) {
+			// setze die durchschnittsgeschwindigkeit als negativ
+			avgMoveSpeed = -1000;
+		}
+		// ist die durchschnittsgeschwindigkeit negativ
+		// (dies wurde durch die vorherige if-abfrage ausgelaest)
+		if (avgMoveSpeed < 0) {
+			// bewege dich raeckwaerts
+			acceleration = -30;
+		}
+		// anmerkung:
+		// die negative durchschnittsgeschwindigkeit wird nach einigen sekunden wieder 
+		//   positiv (das weil carBody.rigidbody.velocity.magnitude immer positiv ist, 
+		//     siehe erste berechnung von avgMoveSpeed)
+		// in diesem moment setzt die forwaertsbewegung wieder ein
+		
+		// wenn wir uns raeckwaerts bewegen muss der einschlag der raeder in die andere richtung gehen
+		// kennen wir zbsp aus dem einparkieren ohne servolenkung
+		if (avgMoveSpeed < 0.0) {
+			// drehe die raeder in die andere richtung
+			rotation = -rotation;
+		}
+	// ------- RUECKWAERTS FAHREN BEI KOLLSION --------
 	
 	carController.Move(rotation, acceleration, acceleration, handbrake);
 }

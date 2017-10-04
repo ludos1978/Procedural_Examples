@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class FSMMove : MonoBehaviour {
@@ -13,7 +14,7 @@ public class FSMMove : MonoBehaviour {
 		FLEE,
 		FLEE_ENTER
 	}
-	public STATE currentState = STATE.IDLE;
+	public STATE currentState;
 	public float timer;
 
 	public Vector3[] positions;
@@ -22,8 +23,12 @@ public class FSMMove : MonoBehaviour {
     public float startChaseDistance = 20;
     public float startFleeDistance = 10;
 
+	public Text actionLabel;
+
 	// Update is called once per frame
 	void Update () {
+		actionLabel.text = currentState.ToString();
+
 		switch (currentState) {
 		case STATE.IDLE:
             if ((target.transform.position - transform.position).magnitude < startChaseDistance) {

@@ -79,3 +79,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+Assets/PlayMaker
+Assets/Plugins/PlayMaker
+Assets/iTween/PlayMaker
