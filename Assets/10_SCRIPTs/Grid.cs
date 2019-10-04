@@ -12,6 +12,22 @@ public class IntegerPosition {
 	public override string ToString() {
 		return (posX+"/"+posY);
 	}
+
+	public IntegerPosition () {
+	}
+
+	public IntegerPosition(int _x, int _y) {
+		posX = _x;
+		posY = _y;
+	}
+
+	// Overload + operator to add two IntegerPosition objects.
+	public static IntegerPosition operator +(IntegerPosition b, IntegerPosition c) {
+		IntegerPosition i = new IntegerPosition();
+		i.posX = b.posX + c.posX;
+		i.posY = b.posY + c.posY;
+        return i;
+    }
 }
 
 public class Grid : MonoBehaviour {

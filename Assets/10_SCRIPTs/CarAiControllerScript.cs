@@ -1,5 +1,9 @@
+﻿using UnityEngine;
+using System.Collections;
+using UnityStandardAssets.Vehicles.Car;
+
+public class CarAiControllerScript : MonoBehaviour {
 /* ki steuerung mit 2 rays zum ausweichen von objekten */
-import UnityStandardAssets.Vehicles.Car;
 
 enum STATE {
   CHASE,
@@ -7,36 +11,36 @@ enum STATE {
   ROAM
 }
 
-private var currentState : STATE = STATE.ROAM;
+private STATE currentState = STATE.ROAM;
 
-//private var carSteeringScript : CarSteeringScript;
-private var carController : CarController;
-private var carBody : GameObject;
+//private CarSteeringScript carSteeringScript;
+private CarController carController;
+private GameObject carBody;
 
-var avgMoveSpeed : float = 50;
+float avgMoveSpeed = 50;
 
-function Start () {
+void  Start (){
 	print ("I: CarAiControllerScript");
 
 	// gib mir eine referenz auf des fahrzeugsteuerungsscript
-	//carSteeringScript = GetComponentInChildren(CarSteeringScript);
-	carController = transform.GetComponentInChildren(CarController);
+	//carSteeringScript = GetComponentInChildren<CarSteeringScript>();
+	carController = transform.GetComponentInChildren<CarController>();
 	// setze eine zufaellig position
 	//transform.position = Vector3(Random.Range(-50, 50),transform.position.y + Random.Range(0, 10),Random.Range(-50, 50));
 	// eine refernez auf das fahrzeug (wo der rigidbody angemacht ist)
 	carBody = transform.gameObject; //.Find("carBody").gameObject;
 }
 
-function FixedUpdate () {
-  var flee = false;
+void  FixedUpdate (){
+  bool flee= false;
   if (Input.GetKey ("i")) {
     flee = true;
   }
-  var chase = false;
+  bool chase= false;
   if (Input.GetKey ("o")) {
     chase = true;
   }
-  var roam = false;
+  bool roam= false;
   if (Input.GetKey ("p")) {
     roam = true;
   }
@@ -71,41 +75,41 @@ function FixedUpdate () {
 	}
 }
 
-function Evade () {
+void  Evade (){
 }
 
-function Chase () {
+void  Chase (){
 }
 
-function Roam () {
-	var acceleration : float 	= 0;
-	var rotation : float 		= 0;
-	var handbrake : float 		= 0;
+void  Roam (){
+	float acceleration 	= 0;
+	float rotation 		= 0;
+	float handbrake 		= 0;
 	
 	// startposition des raycasts
-	var raySource : Vector3;
+	Vector3 raySource;
 	// richtung des raycasts
-	var rayDirection : Vector3;
+	Vector3 rayDirection;
 	// laenge des raycasts
-	var rayLength : float = 20.0;
+	float rayLength = 20.0f;
 	
 	// entfernung zum objekt auf das der linke strahl trifft
 	// als standart wird ein wert verwendet der bei einer kollision niemals auftreten kann
 	// (da der raycast mittels der variable rayLength auf die maximale laenge
 	//   beschraenkt wird, kann kein graesserer wert auftreten)
-	var distanceToLeftCollision : float = rayLength + 1;
+	float distanceToLeftCollision = rayLength + 1;
 	// die berechnete kollision von strahl wird hier gespeichert
-	var leftHit : RaycastHit;
+	RaycastHit leftHit;
 	// startpunkt des strahls
 	// position des fahrzeugs + (umwandlungsmatrix von lokalkoordinaten in weltkooridnaten * vector aus der fahrzeugsicht)
-	raySource = carBody.transform.position+(carBody.transform.TransformDirection(Vector3(-.7,.6,0.8)));
+	raySource = carBody.transform.position+(carBody.transform.TransformDirection(new Vector3(-.7f,.6f,0.8f)));
 	// rixchtung des strahls
 	// umwandlungsmatrix von lokalkoordinaten in weltkooridnaten * normalisierter richtungsvektor in fahrzeugkoodinaten
-	rayDirection = carBody.transform.TransformDirection(Vector3(-1,0,3).normalized);
+	rayDirection = carBody.transform.TransformDirection(new Vector3(-1,0,3).normalized);
 	// zeichne eine linie die den raycast representiert
 	Debug.DrawLine (raySource, raySource+rayDirection*rayLength);
 	// aeberpraefe auf kollisionen
-	if (Physics.Raycast (raySource, rayDirection, leftHit, rayLength)) {
+	if (Physics.Raycast (raySource, rayDirection, out leftHit, rayLength)) {
 		
 		if (leftHit.collider.gameObject.name == "Terrain") {
 			// wenn der strahl auf das terrain trifft, ignoriere die kollision
@@ -118,12 +122,12 @@ function Roam () {
 	}
 	
 	// alles wie oben, nur faer einen zweiten strahl der nach rechts geht
-	var distanceToRightCollision : float = rayLength + 1;
-	var rightHit : RaycastHit;
-	raySource = carBody.transform.position+carBody.transform.localToWorldMatrix * Vector3(.7,.6,0.8);
-	rayDirection = carBody.transform.localToWorldMatrix * (Vector3(1,0,3).normalized);
+	float distanceToRightCollision = rayLength + 1;
+	RaycastHit rightHit;
+	raySource = carBody.transform.position + carBody.transform.TransformDirection(new Vector3(.7f,.6f,0.8f)); // * carBody.transform.localToWorldMatrix);
+	rayDirection = carBody.transform.localToWorldMatrix * (new Vector3(1,0,3).normalized);
 	Debug.DrawLine (raySource, raySource+rayDirection*rayLength);
-	if (Physics.Raycast (raySource, rayDirection, rightHit, rayLength)) {
+	if (Physics.Raycast (raySource, rayDirection, out rightHit, rayLength)) {
 		if (rightHit.collider.gameObject.name == "Terrain") {
 			// skip terrain collision
 		} else {
@@ -138,16 +142,16 @@ function Roam () {
 	acceleration = 30;
 	
 	// die standart einschlagstaerke der raeder
-	var turnAngle = 10;
+	float turnAngle= 10;
 	
 	// ------- ZU WEIT WEG -----
 		// wenn das fahrzeug weiter als 250 einheiten vom welt-zentrum entfernt ist
-		if ((carBody.transform.position - Vector3(0,carBody.transform.position.y,0)).magnitude > 250) {
+		if ((carBody.transform.position - new Vector3(0,carBody.transform.position.y,0)).magnitude > 250) {
 			// berechne, aus der fahrzeugausrichtung und position, wo das zentrum der welt ist
-			var centerOfWorldFromMyView = carBody.transform.InverseTransformPoint(0, 0, 0);
+			Vector3 centerOfWorldFromMyView = carBody.transform.InverseTransformPoint(0, 0, 0);
 
 			// die x koorinate sagt mir ob das zentrum der welt links (negativ) oder rechts (positiv) von mir ist
-			// schraenke diesen wert zwischen -10 und 10 ein (-54.2 wird zu -10, 123.0 wird zu 10.0, 5.0 bleibt konstanz)
+			// schraenke diesen wert zwischen -10 und 10 ein (-54.2f wird zu -10, 123.0f wird zu 10.0f, 5.0f bleibt konstanz)
 			turnAngle = Mathf.Min(10, Mathf.Max(-10, centerOfWorldFromMyView.x));
 			// setze den wert als drehwinkel faer die raeder
 			rotation = turnAngle;
@@ -160,7 +164,7 @@ function Roam () {
 		// (distanz der kollision ungleich dem standartwert von oben)
 		if ((distanceToLeftCollision <= rayLength) || (distanceToRightCollision <= rayLength)) {
 			// der kleinere wert von linker und rechter kollisionsentfernung
-			var minHitDistance = Mathf.Min(distanceToLeftCollision, distanceToRightCollision);
+			float minHitDistance= Mathf.Min(distanceToLeftCollision, distanceToRightCollision);
 			// ist die kollisionsentfernung klein
 			if (minHitDistance < 5) {
 				// erhaehe den einschlagwinkel der raeder
@@ -185,7 +189,7 @@ function Roam () {
 	
 	// ------- RUECKWAERTS FAHREN BEI KOLLSION --------
 		// berechne einen wert der die durchschnittsgeschwindigkeit repraesentiert
-		avgMoveSpeed = (avgMoveSpeed * 0.9) + (carBody.GetComponent.<Rigidbody>().velocity.magnitude * 0.1);
+		avgMoveSpeed = (avgMoveSpeed * 0.9f) + (carBody.GetComponent<Rigidbody>().velocity.magnitude * 0.1f);
 		
 		/*if (carBody.transform.parent.gameObject.name == "carprefabPlayer") {
 			Debug.Log("avgSpeed "+avgMoveSpeed+" vel "+carBody.GetComponent.<Rigidbody>().velocity.magnitude);
@@ -193,7 +197,7 @@ function Roam () {
 		// ist die durchschnittsgeschwindigkeit sehr klein aber nicht negativ
 		// (nach ungefaehr 3 sekunden gestoppt trifft dies zu)
 		// 
-		if ((avgMoveSpeed < 0.05) && (avgMoveSpeed > 0)) {
+		if ((avgMoveSpeed < 0.05f) && (avgMoveSpeed > 0)) {
 			// setze die durchschnittsgeschwindigkeit als negativ
 			avgMoveSpeed = -1000;
 		}
@@ -211,11 +215,12 @@ function Roam () {
 		
 		// wenn wir uns raeckwaerts bewegen muss der einschlag der raeder in die andere richtung gehen
 		// kennen wir zbsp aus dem einparkieren ohne servolenkung
-		if (avgMoveSpeed < 0.0) {
+		if (avgMoveSpeed < 0.0f) {
 			// drehe die raeder in die andere richtung
 			rotation = -rotation;
 		}
 	// ------- RUECKWAERTS FAHREN BEI KOLLSION --------
 	
 	carController.Move(rotation, acceleration, acceleration, handbrake);
+}
 }

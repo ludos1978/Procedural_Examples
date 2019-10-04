@@ -14,6 +14,7 @@ public class FSMMove : MonoBehaviour {
 		FLEE,
 		FLEE_ENTER
 	}
+
 	public STATE currentState;
 	public float timer;
 

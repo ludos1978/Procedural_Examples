@@ -1,3 +1,10 @@
+﻿// Converted from UnityScript to C# at http://www.M2H.nl/files/js_to_c.php - by Mike Hergaarden
+// Do test the code! You usually need to change a few small bits.
+
+using UnityEngine;
+using System.Collections;
+
+public class SmoothFollow : MonoBehaviour {
 /*
 This camera smoothes out rotation around the y-axis and height.
 Horizontal Distance to the target is always fixed.
@@ -10,30 +17,30 @@ Then we apply the smoothed values to the transform's position.
 */
 
 // The target we are following
-var target : Transform;
+public Transform target;
 // The distance in the x-z plane to the target
-var distance = 10.0;
+float distance= 10.0f;
 // the height we want the camera to be above the target
-var height = 5.0;
+float height= 5.0f;
 // How much we 
-var heightDamping = 2.0;
-var rotationDamping = 3.0;
+float heightDamping= 2.0f;
+float rotationDamping= 3.0f;
 
 // Place the script in the Camera-Control group in the component menu
-@script AddComponentMenu("Camera-Control/Smooth Follow")
+// @script AddComponentMenu("Camera-Control/Smooth Follow")
 
 
-function LateUpdate () {
+void  LateUpdate (){
 	// Early out if we don't have a target
 	if (!target)
 		return;
 	
 	// Calculate the current rotation angles
-	wantedRotationAngle = target.eulerAngles.y;
-	wantedHeight = target.position.y + height;
+	float wantedRotationAngle = target.eulerAngles.y;
+	float wantedHeight = target.position.y + height;
 		
-	currentRotationAngle = transform.eulerAngles.y;
-	currentHeight = transform.position.y;
+	float currentRotationAngle = transform.eulerAngles.y;
+	float currentHeight = transform.position.y;
 	
 	// Damp the rotation around the y-axis
 	currentRotationAngle = Mathf.LerpAngle (currentRotationAngle, wantedRotationAngle, rotationDamping * Time.deltaTime);
@@ -42,7 +49,7 @@ function LateUpdate () {
 	currentHeight = Mathf.Lerp (currentHeight, wantedHeight, heightDamping * Time.deltaTime);
 
 	// Convert the angle into a rotation
-	currentRotation = Quaternion.Euler (0, currentRotationAngle, 0);
+	Quaternion currentRotation = Quaternion.Euler (0, currentRotationAngle, 0);
 	
 	// Set the position of the camera on the x-z plane to:
 	// distance meters behind the target
@@ -50,8 +57,9 @@ function LateUpdate () {
 	transform.position -= currentRotation * Vector3.forward * distance;
 
 	// Set the height of the camera
-	transform.position.y = currentHeight;
+	transform.position = new Vector3(transform.position.x, currentHeight, transform.position.z);
 	
 	// Always look at the target
 	transform.LookAt (target);
+}
 }
